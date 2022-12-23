@@ -1,5 +1,8 @@
 require_relative "MTAParser/version"
 require_relative "save"
+require 'open-uri'
+require 'nokogiri'
+require 'thread'
 
 module MTAParser
   class DataParser
@@ -8,15 +11,17 @@ module MTAParser
       @pageCount = pageCount
       @items = []
     end
-  
-    def parse()
+
+    attr_accessor :items
+
+    def parse(doc)
         items = []
 
         for id in 1..48
-            title = @doc.search("/html/body/div[3]/div/div[1]/main/div/div[2]/div/div[#{id.to_s}]/div/div[3]/a").text
-            price = @doc.search("/html/body/div[3]/div/div[1]/main/div/div[2]/div/div[#{id.to_s}]/div/div[3]/div/div[1]").text
-            discount = @doc.search("/html/body/div[3]/div/div[1]/main/div/div[2]/div/div[#{id.to_s}]/div/div[2]/span[1]").text
-            cashback = @doc.search("/html/body/div[3]/div/div[1]/main/div/div[2]/div/div[#{id.to_s}]/div/div[5]/button/span").text
+            title = doc.search("/html/body/div[3]/div/div[1]/main/div/div[2]/div/div[#{id.to_s}]/div/div[3]/a").text
+            price = doc.search("/html/body/div[3]/div/div[1]/main/div/div[2]/div/div[#{id.to_s}]/div/div[3]/div/div[1]").text
+            discount = doc.search("/html/body/div[3]/div/div[1]/main/div/div[2]/div/div[#{id.to_s}]/div/div[2]/span[1]").text
+            cashback = doc.search("/html/body/div[3]/div/div[1]/main/div/div[2]/div/div[#{id.to_s}]/div/div[5]/button/span").text
             items.push(Title: title, Price: price, Discount: discount, Cashback: cashback)
         end
 
@@ -28,12 +33,12 @@ module MTAParser
         threads = []
         mutex = Mutex.new
 
-        for page in 1..pageCount
+        for page in 1..@pageCount
             threads << Thread.new {
-              html = URI.open("#{url}/page=#{page}")
+              html = URI.open("#{@url}/page=#{page}")
               doc = Nokogiri::HTML(html)
               mutex.synchronize do
-                @items.concat(parse_doc(doc))
+                @items.concat(parse(doc))
               end
             }
         end
