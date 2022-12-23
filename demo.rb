@@ -1,5 +1,4 @@
 require_relative "lib/MTAParser"
 
-parser = MTAParser::DataParser.new('https://mta.ua/noutbuki', 3)
-parser.parse_pages()
-parser.save()
+parser = MTAParser.new('https://mta.ua/noutbuki', 3)
+parser.parse_and_save()

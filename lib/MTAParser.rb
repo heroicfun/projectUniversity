@@ -1,20 +1,27 @@
-require_relative "MTAParser/version"
 require_relative "MTAParser/DataParser"
+require_relative "MTAParser/DataSaver"
+require_relative "MTAParser/version"
+require 'open-uri'
+require 'nokogiri'
+require 'thread'
 
-module MTAParser
-  def self.title(id)
-    return "/html/body/div[3]/div/div[1]/main/div/div[2]/div/div[#{id.to_s}]/div/div[3]/a"
+class MTAParser
+  include DataParser
+  include DataSaver
+
+  def initialize(url, pageCount)
+    @url = url
+    @pageCount = pageCount
+    @items = []
   end
 
-  def self.price(id)
-      return "/html/body/div[3]/div/div[1]/main/div/div[2]/div/div[#{id.to_s}]/div/div[3]/div/div[1]"
+  def parse_and_save()
+    parse_pages()
+    save()
   end
 
-  def self.discount(id)
-      return "/html/body/div[3]/div/div[1]/main/div/div[2]/div/div[#{id.to_s}]/div/div[2]/span[1]"
-  end
-
-  def self.cashback(id)
-      return "/html/body/div[3]/div/div[1]/main/div/div[2]/div/div[#{id.to_s}]/div/div[5]/button/span"
+  def save()
+    saveCSV()
+    saveJSON()
   end
 end

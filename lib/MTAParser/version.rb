@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
-module MTAParser
+module DataParser
   VERSION = "0.1.0"
 end
